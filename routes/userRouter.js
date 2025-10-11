@@ -6,12 +6,13 @@ import {
   getCartSize,
 } from "../controllers/userController.js";
 // import { verifyToken } from "../middleware/authJWT.mjs";
-import { protect } from "../controllers/authController.js";
+import { protect, restrictTo } from "../controllers/authController.js";
 import {
   adminDeleteUser,
   adminUpdateUser,
   adminUploadImage,
   getAllProfiles,
+  getProfileById,
   getProfile,
   updatePassword,
   updateProfile,
@@ -32,7 +33,8 @@ const router = express.Router();
 router.get("/view", protect, getProfile);
 router.patch("/edit", protect, updateProfile);
 router.patch("/password", protect, updatePassword);
-router.get("/all", protect, getAllProfiles);
+router.get("/all", protect, restrictTo("admin"), getAllProfiles);
+router.get("/:id", protect, getProfileById);
 router.patch(
   "/updateImage",
   protect,

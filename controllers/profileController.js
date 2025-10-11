@@ -13,7 +13,7 @@ export const getAllProfiles = async (req, res) => {
   }
 
   try {
-    const users = await User.find().select("-password -passwordConfirm");
+    const users = await User.find().sort({createdAt : -1}).select("-password -passwordConfirm");
     res.status(200).json({
       message: "All user profiles",
       data: users,
@@ -25,6 +25,52 @@ export const getAllProfiles = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get a user's profile by id
+ * - Accessible aux utilisateurs authentifiés
+ * - Masque les champs sensibles (mot de passe, confirmation du mot de passe)
+ * - L'e-mail n'est renvoyé que si le demandeur est le même utilisateur ou un administrateur.
+ */
+export const getProfileById = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized: User not found" });
+  }
+
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: "User id is required" });
+  }
+
+  try {
+    const user = await User.findById(id).select("-password -passwordConfirm");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Build response object
+    const publicFields = {
+      _id :user._id,
+      fullName: user.fullName,
+      username: user.username,
+      phone: user.phone,
+      address: user.address,
+      image: user.image,
+      createdAt: user.createdAt,
+    };
+
+    // N'inclure l'adresse e-mail que lorsque le demandeur est l'utilisateur lui-même ou un administrateur.
+    if (req.user.role === "admin" || String(req.user._id) === String(id)) {
+      publicFields.email = user.email;
+    }
+
+    res.status(200).json({ message: "User profile", data: publicFields });
+  } catch (error) {
+    console.error(`Error getting profile by id: ${error}`);
+    res.status(500).json({ error: "Error getting user profile" });
+  }
+};
+
 
 /**
  * Get the current user's profile
@@ -271,3 +317,4 @@ export const adminDeleteUser = async (req, res) => {
     });
   }
 };
+
