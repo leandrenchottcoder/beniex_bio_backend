@@ -12,7 +12,6 @@ const BlogSchema = new mongoose.Schema({
    description: {
     type: String,
     required: [true, "Description name is required"], // Custom error message
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
     minlength: [10, "Description name must be at least 10 characters long"],
     maxlength: [500, "Description name cannot exceed 500 characters"],

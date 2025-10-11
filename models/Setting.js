@@ -12,7 +12,6 @@ const SettingSchema = new mongoose.Schema({
   email: {
     type: String,
     required: false,
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
     minlength: [3, "Email name must be at least 3 characters long"],
     maxlength: [100, "Email name cannot exceed 100 characters"],
@@ -20,7 +19,6 @@ const SettingSchema = new mongoose.Schema({
    adresse: {
     type: String,
     required: [true, "Adresse name is required"],
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
     minlength: [3, "Product name must be at least 3 characters long"],
     maxlength: [300, "Product name cannot exceed 300 characters"],
@@ -28,25 +26,21 @@ const SettingSchema = new mongoose.Schema({
   temps_ouverture: {
     type: String,
     required: [true, "Temps d'ouverture is required"],
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
   },
   facebook_link: {
     type: String,
     required: false,
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
   },
   tik_tok_link: {
     type: String,
     required: false,
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
   },
    instagram_link: {
     type: String,
     required: false,
-    unique: true,
     trim: true, // Trim whitespace from beginning and end
   },
     createdAt: {

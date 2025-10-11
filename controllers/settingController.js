@@ -99,7 +99,7 @@ export const getSettingById = async (req, res) => {
 };
 
 export const updateSetting = async (req, res) => {
-  // only allow admins to update categories
+  // only allow admins to update paramètres
   if (!req.user || req.user.role !== "admin") {
     return res.status(403).json({
       error: "Unauthorized: User not authorized",
