@@ -32,7 +32,7 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-  const { fullName, email, username, password, passwordConfirm, phone } =
+  const { fullName, email, username, role, password, passwordConfirm, phone } =
     req.body;
   if (password !== passwordConfirm) {
     return next(new appError("Les mots de passe ne correspondent pas", 400));
@@ -41,6 +41,7 @@ export const signup = catchAsync(async (req, res, next) => {
     fullName,
     email,
     username,
+    role,
     password,
     passwordConfirm,
     phone,

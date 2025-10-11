@@ -3,19 +3,19 @@ import mongoose from "mongoose";
 const BlogSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, "title name is required"], // Custom error message
+    required: [true, "Title name is required"], // Custom error message
     unique: true,
     trim: true, // Trim whitespace from beginning and end
-    minlength: [3, "Product name must be at least 3 characters long"],
-    maxlength: [100, "Product name cannot exceed 100 characters"],
+    minlength: [3, "Title name must be at least 3 characters long"],
+    maxlength: [100, "Title name cannot exceed 100 characters"],
   },
    description: {
     type: String,
-    required: [true, "description name is required"], // Custom error message
+    required: [true, "Description name is required"], // Custom error message
     unique: true,
     trim: true, // Trim whitespace from beginning and end
-    minlength: [10, "Product name must be at least 10 characters long"],
-    maxlength: [500, "Product name cannot exceed 500 characters"],
+    minlength: [10, "Description name must be at least 10 characters long"],
+    maxlength: [500, "Description name cannot exceed 500 characters"],
   },
   images: {
     type: [String], // Ensure at least one image URL is provided

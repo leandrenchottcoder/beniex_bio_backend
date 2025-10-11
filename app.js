@@ -12,6 +12,7 @@ import productRouter from "./routes/productRouter.js";
 import featuredProductsRouter from "./routes/featuredProductsRouter.js";
 import categoryRouter from "./routes/categoryRouter.js";
 import blogRouter from "./routes/blogRouter.js";
+import settingRouter from "./routes/settingRouter.js";
 import { protect } from "./controllers/authController.js";
 import cors from "cors";
 
@@ -66,6 +67,7 @@ app.use("/api/products", productRouter);
 app.use("/api/featuredproducts", featuredProductsRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/blogs", blogRouter);
+app.use("/api/settings", settingRouter);
 
 const server = app.listen(PORT, () => {
   console.log(`Listening on http://127.0.0.1:${PORT}`);
