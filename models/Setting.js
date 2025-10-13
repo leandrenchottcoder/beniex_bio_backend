@@ -42,12 +42,8 @@ const SettingSchema = new mongoose.Schema({
     type: String,
     required: false,
     trim: true, // Trim whitespace from beginning and end
-  },
-    createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  }
+}, {timestamps: true});
 
 // Create a model
 const Setting = mongoose.model("Setting", SettingSchema);

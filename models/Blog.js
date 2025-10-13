@@ -23,12 +23,8 @@ const BlogSchema = new mongoose.Schema({
     type: Number,
     required: [true, " Status is required"],
     default: 1,
-  },
-    createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  }
+}, {timestamps: true});
 
 // Create a model
 const Blog = mongoose.model("Blog", BlogSchema);

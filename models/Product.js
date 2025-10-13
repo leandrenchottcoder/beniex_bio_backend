@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 // Define your schema
 const ProductSchema = new mongoose.Schema({
+   code_product: {
+    type: String,
+    required: [true, "Code is required"], // Custom error message
+    trim: true, // Trim whitespace from beginning and end
+    minlength: [3, "Code must be at least 3 characters long"],
+    maxlength: [100, "Code cannot exceed 100 characters"],
+    unique: true,
+  },
   name: {
     type: String,
     required: [true, "Product name is required"], // Custom error message
@@ -19,6 +27,13 @@ const ProductSchema = new mongoose.Schema({
     default: "No description provided",
     trim: true,
   },
+  reference: {
+    type: String,
+    required: false,
+    trim: true, // Trim whitespace from beginning and end
+    minlength: [3, "Référence must be at least 3 characters long"],
+    maxlength: [100, "Référence cannot exceed 100 characters"],
+  },
   stock: {
     type: Number,
     required: [true, "Product stock is required"],
@@ -31,32 +46,18 @@ const ProductSchema = new mongoose.Schema({
   images: {
     type: [String], // Ensure at least one image URL is provided
   },
-  brand: {
-    type: String,
-    required: [true, "Product brand is required"],
-    trim: true,
-  },
   category: {
     type: String,
     required: [true, "Product category is required"],
     trim: true,
   },
-  size: {
-    type: [String],
-    required: [true, "Product size is required"],
-    validate: {
-      validator: (v) => Array.isArray(v) && v.every((size) => ["S", "M", "L", "XL", "XXL"].includes(size)),
-      message: "Invalid size(s) provided. Allowed values: S, M, L, XL, XXL",
-    },
+   statut: {
+    type: Number,
+    required: [true, "Statut is required"],
+    default : 1
   },
-  colors: {
-    type: [String],
-    validate: {
-      validator: (v) => Array.isArray(v) && v.length > 0,
-      message: "Please provide at least one color",
-    },
-  },
-});
+   
+}, {timestamps: true});
 
 // Create a model
 const Product = mongoose.model("Product", ProductSchema);

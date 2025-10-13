@@ -39,12 +39,8 @@ const SupportSchema = new mongoose.Schema({
     type: Number,
     required: [true, " Status is required"],
     default: 0,
-  },
-    createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  }
+}, {timestamps: true});
 
 // Create a model
 const Support = mongoose.model("Support", SupportSchema);

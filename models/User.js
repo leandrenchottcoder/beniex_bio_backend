@@ -90,14 +90,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["male", "female"],
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
-});
+}, {timestamps: true});
 
 // Hash password and set passwordConfirm before saving
 userSchema.pre("save", async function (next) {
