@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import CounterOrder from "../models/CounterOrder.js";
 
 export const getOrderById = async (req, res) => {
   try {
@@ -81,6 +82,7 @@ export const getAllOrders = async (req, res) => {
           image: 1,
           _id: 1,
         })
+        .sort({createdAt: -1})
         .skip(startIndex)
         .limit(limit),
       Order.countDocuments(query),
@@ -168,8 +170,26 @@ export const addOrder = async (req, res) => {
 
   await Product.bulkWrite(bulkOps);
 
+  // Helper: get next sequence atomically from Counter collection
+      async function getNextSequence(name) {
+        const updated = await CounterOrder.findOneAndUpdate(
+          { _id: name },
+          { $inc: { seq: 1 } },
+          { new: true, upsert: true }
+        ).lean();
+        return updated.seq;
+      }
+  
+      const finalCode =
+        code_order &&
+        typeof code_order === "string" &&
+        code_product.trim() !== ""
+          ? code_product.trim()
+          : `CMD#${String(await getNextSequence("order")).padStart(6, "0")}`;
+
   try {
     const createdOrder = await Order.create({
+      code_order: finalCode,
       products: processedProducts,
       totalPrice,
       address,

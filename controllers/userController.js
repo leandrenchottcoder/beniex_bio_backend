@@ -11,8 +11,10 @@ export async function addCart(req, res, next) {
         error: "Non autorisé : Utilisateur non trouvé",
       });
     }
-    let userId = req.user._id;
-    let currentUser = await User.findOne(userId);
+  let userId = req.user._id;
+  // findOne(userId) is incorrect because findOne expects a filter object.
+  // Use findById to fetch by _id directly.
+  let currentUser = await User.findById(userId);
     const productId = req.body.productId;
     if (!productId) {
       return res.status(400).json({

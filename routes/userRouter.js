@@ -34,7 +34,6 @@ router.get("/view", protect, getProfile);
 router.patch("/edit", protect, updateProfile);
 router.patch("/password", protect, updatePassword);
 router.get("/all", protect, restrictTo("admin"), getAllProfiles);
-router.get("/:id", protect, getProfileById);
 router.patch(
   "/updateImage",
   protect,
@@ -55,4 +54,6 @@ router.get("/cart", protect, getCart);
 router.post("/cart", protect, addCart);
 router.post("/cart/delete", protect, deleteCart);
 router.get("/cart/size", protect, getCartSize);
+// Dynamic route must come after static routes like /cart to avoid treating 'cart' as an :id
+router.get("/:id", protect, getProfileById);
 export default router;
