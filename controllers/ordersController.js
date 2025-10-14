@@ -146,7 +146,7 @@ export const getAllOrders = async (req, res) => {
 };
 
 export const addOrder = async (req, res) => {
-  const { products, totalPrice, address } = req.body;
+  const { code_order, products, totalPrice, address } = req.body;
 
   if (!products || Object.keys(products).length === 0) {
     res.status(400).json({
@@ -181,10 +181,8 @@ export const addOrder = async (req, res) => {
       }
   
       const finalCode =
-        code_order &&
-        typeof code_order === "string" &&
-        code_product.trim() !== ""
-          ? code_product.trim()
+        code_order && typeof code_order === "string" && code_order.trim() !== ""
+          ? code_order.trim()
           : `CMD#${String(await getNextSequence("order")).padStart(6, "0")}`;
 
   try {
