@@ -12,7 +12,7 @@ const router = express.Router();
 
 
 router.post("/save", protect, restrictTo("admin"), addCategory);
-router.get("/all", protect, getAllCategory);
+router.get("/all", getAllCategory);
 router.get("/:id", protect, restrictTo("admin"), getCategoryById);
 router.patch("/:id", protect, restrictTo("admin"), adminUpdateCategory);
 router.delete("/delete", protect, restrictTo("admin"), adminDeleteCategory);

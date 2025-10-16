@@ -10,7 +10,7 @@ const fileFilter = (req, file, cb) => {
   if (file && file.mimetype && file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed (jpeg, png, gif, webp)'), false);
+    cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'), false);
   }
 };
 

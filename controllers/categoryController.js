@@ -34,12 +34,6 @@ export const addCategory = catchAsync(async (req, res, next) => {
 });
 
 export const getAllCategory = async (req, res) => {
-  if (!req.user) {
-    return res.status(403).json({
-      error: "Unauthorized: Not authorized",
-    });
-  }
-
   try {
     const categories = await Category.find().sort({createdAt : -1}).select("");
     res.status(200).json({
