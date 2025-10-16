@@ -14,7 +14,7 @@ const router = express.Router();
 
 // Expect form-data with field name 'images' for files (can send multiple)
 router.post("/save", protect, restrictTo("admin"), upload.array('images'), addBlog);
-router.get("/all", protect, getAllBlog);
+router.get("/all", getAllBlog);
 router.get("/:id", protect, getBlogById);
 router.patch("/:id", protect, restrictTo("admin"), updateBlog);
 router.delete("/delete", protect, restrictTo("admin"), deleteBlog);

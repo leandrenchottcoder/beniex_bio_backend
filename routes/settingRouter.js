@@ -12,7 +12,7 @@ const router = express.Router();
 
 
 router.post("/save", protect, restrictTo("admin"), addSetting);
-router.get("/all", protect, getAllSetting);
+router.get("/all", getAllSetting);
 router.get("/:id", protect, restrictTo("admin"), getSettingById);
 router.patch("/:id", protect, restrictTo("admin"), updateSetting);
 router.delete("/delete", protect, restrictTo("admin"), deleteSetting);

@@ -50,12 +50,6 @@ export const addBlog = catchAsync(async (req, res, next) => {
 });
 
 export const getAllBlog = async (req, res) => {
-  if (!req.user) {
-    return res.status(403).json({
-      error: "Unauthorized: Not authorized",
-    });
-  }
-
   try {
     const blogs = await Blog.find().sort({createdAt : -1}).select("");
     res.status(200).json({

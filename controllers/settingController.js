@@ -39,12 +39,6 @@ export const addSetting = catchAsync(async (req, res, next) => {
 });
 
 export const getAllSetting = async (req, res) => {
-  if (!req.user) {
-    return res.status(403).json({
-      error: "Unauthorized: Not authorized",
-    });
-  }
-
   try {
     const settings = await Setting.find().sort({createdAt : -1}).select("");
     res.status(200).json({
