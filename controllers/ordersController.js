@@ -38,11 +38,19 @@ export const getOrderById = async (req, res) => {
     const productIds = Object.keys(productsCount);
     const productsDetails = await Product.find({ _id: { $in: productIds } });
 
+    // CALCUL du prix total basé sur les quantités
+    let calculatedTotal = 0;
     const products = productIds.map((productId) => {
       const productDetail = productsDetails.find(
         (product) => product._id.toString() === productId.toString()
       );
       const count = productsCount[productId];
+      
+      // Ajouter au total calculé
+      if (productDetail) {
+        calculatedTotal += productDetail.price * count;
+      }
+      
       return {
         _id: productId,
         name: productDetail ? productDetail.name : "Product not found",
@@ -54,7 +62,13 @@ export const getOrderById = async (req, res) => {
       };
     });
 
-    res.json({ order, products });
+    res.json({ 
+      order: {
+        ...order.toObject(),
+        totalPrice: calculatedTotal // Utiliser le prix recalculé
+      }, 
+      products 
+    });
   } catch (error) {
     console.error("Error while fetching order:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -155,6 +169,17 @@ export const addOrder = async (req, res) => {
     return;
   }
 
+  // Récupérer les détails des produits pour calculer le prix total
+  const productIds = Object.keys(products);
+  const productDetails = await Product.find({ _id: { $in: productIds } });
+
+  // RECALCUL du prix total côté serveur pour sécurité
+  let calculatedTotalPrice = 0;
+  productDetails.forEach(product => {
+    const quantity = products[product._id.toString()];
+    calculatedTotalPrice += product.price * quantity;
+  });
+
   const processedProducts = Object.entries(products).flatMap(
     ([productId, quantity]) => {
       return Array.from({ length: quantity }, () => productId);
@@ -171,25 +196,25 @@ export const addOrder = async (req, res) => {
   await Product.bulkWrite(bulkOps);
 
   // Helper: get next sequence atomically from Counter collection
-      async function getNextSequence(name) {
-        const updated = await CounterOrder.findOneAndUpdate(
-          { _id: name },
-          { $inc: { seq: 1 } },
-          { new: true, upsert: true }
-        ).lean();
-        return updated.seq;
-      }
-  
-      const finalCode =
-        code_order && typeof code_order === "string" && code_order.trim() !== ""
-          ? code_order.trim()
-          : `CMD#${String(await getNextSequence("order")).padStart(6, "0")}`;
+  async function getNextSequence(name) {
+    const updated = await CounterOrder.findOneAndUpdate(
+      { _id: name },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    ).lean();
+    return updated.seq;
+  }
+
+  const finalCode =
+    code_order && typeof code_order === "string" && code_order.trim() !== ""
+      ? code_order.trim()
+      : `CMD#${String(await getNextSequence("order")).padStart(6, "0")}`;
 
   try {
     const createdOrder = await Order.create({
       code_order: finalCode,
       products: processedProducts,
-      totalPrice,
+      totalPrice: calculatedTotalPrice, // Utiliser le prix recalculé
       address,
       user: req.user._id,
       date: Date.now(),
@@ -199,7 +224,10 @@ export const addOrder = async (req, res) => {
     req.user.orders.push(createdOrder._id);
     await req.user.save();
 
-    res.json({ message: "Order created successfully" });
+    res.json({ 
+      message: "Order created successfully",
+      totalPrice: calculatedTotalPrice // Retourner le prix calculé pour vérification
+    });
   } catch (error) {
     console.error("Error while creating the order:", error);
     res.status(500).json({ error: "Error while creating the order" });
