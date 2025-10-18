@@ -1,6 +1,21 @@
+import dotenv from "dotenv";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import CounterOrder from "../models/CounterOrder.js";
+import nodemailer from 'nodemailer';
+
+dotenv.config();
+
+// Configuration corrigée du transporteur email
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true pour 465, false pour autres ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Mot de passe d'application Gmail
+  },
+});
 
 export const getOrderById = async (req, res) => {
   try {
@@ -175,9 +190,17 @@ export const addOrder = async (req, res) => {
 
   // RECALCUL du prix total côté serveur pour sécurité
   let calculatedTotalPrice = 0;
-  productDetails.forEach(product => {
+  const productsWithDetails = productDetails.map(product => {
     const quantity = products[product._id.toString()];
-    calculatedTotalPrice += product.price * quantity;
+    const subtotal = product.price * quantity;
+    calculatedTotalPrice += subtotal;
+    
+    return {
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      subtotal: subtotal
+    };
   });
 
   const processedProducts = Object.entries(products).flatMap(
@@ -214,7 +237,7 @@ export const addOrder = async (req, res) => {
     const createdOrder = await Order.create({
       code_order: finalCode,
       products: processedProducts,
-      totalPrice: calculatedTotalPrice, // Utiliser le prix recalculé
+      totalPrice: calculatedTotalPrice,
       address,
       user: req.user._id,
       date: Date.now(),
@@ -224,15 +247,184 @@ export const addOrder = async (req, res) => {
     req.user.orders.push(createdOrder._id);
     await req.user.save();
 
+    // Envoyer l'email de notification
+    await sendOrderNotificationEmail({
+      orderCode: finalCode,
+      customerName: req.user.fullName || req.user.username,
+      customerEmail: req.user.email,
+      products: productsWithDetails,
+      totalPrice: calculatedTotalPrice,
+      address: address,
+      orderDate: new Date().toLocaleString('fr-FR')
+    });
+
     res.json({ 
       message: "Order created successfully",
-      totalPrice: calculatedTotalPrice // Retourner le prix calculé pour vérification
+      totalPrice: calculatedTotalPrice,
+      orderCode: finalCode
     });
   } catch (error) {
     console.error("Error while creating the order:", error);
     res.status(500).json({ error: "Error while creating the order" });
   }
 };
+
+// Fonction pour envoyer l'email de notification
+async function sendOrderNotificationEmail(orderDetails) {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: 'leandrenchott7775@gmail.com',
+      subject: `🎉 Nouvelle Commande Reçue - ${orderDetails.orderCode}`,
+      html: generateOrderEmailTemplate(orderDetails)
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Email de notification de commande envoyé avec succès');
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'email de notification:', error);
+    // Ne pas bloquer la création de commande en cas d'erreur d'email
+  }
+}
+
+// Template HTML pour l'email
+function generateOrderEmailTemplate(orderDetails) {
+  return `
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nouvelle Commande</title>
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .header {
+                background: linear-gradient(135deg, #1e6f41, #28a745);
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 10px 10px 0 0;
+            }
+            .content {
+                background: #f8f9fa;
+                padding: 30px;
+                border-radius: 0 0 10px 10px;
+            }
+            .order-info {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .product-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            .product-table th, .product-table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            .product-table th {
+                background: #f8f9fa;
+                font-weight: bold;
+            }
+            .total {
+                background: #1e6f41;
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                text-align: center;
+                font-size: 1.2em;
+                font-weight: bold;
+                margin-top: 20px;
+            }
+            .address-info {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin-top: 20px;
+            }
+            .badge {
+                background: #ffc107;
+                color: #333;
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.8em;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🎉 Nouvelle Commande Reçue !</h1>
+            <p>Une nouvelle commande vient d'être passée sur votre boutique</p>
+        </div>
+        
+        <div class="content">
+            <div class="order-info">
+                <h2>Détails de la Commande</h2>
+                <p><strong>Numéro de commande :</strong> <span class="badge">${orderDetails.orderCode}</span></p>
+                <p><strong>Client :</strong> ${orderDetails.customerName} (${orderDetails.customerEmail})</p>
+                <p><strong>Date de commande :</strong> ${orderDetails.orderDate}</p>
+            </div>
+
+            <h3>Produits Commandés</h3>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Prix Unitaire</th>
+                        <th>Quantité</th>
+                        <th>Sous-total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orderDetails.products.map(product => `
+                        <tr>
+                            <td>${product.name}</td>
+                            <td>${product.price.toLocaleString('fr-FR', {style: 'currency', currency: 'XOF'})}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.subtotal.toLocaleString('fr-FR', {style: 'currency', currency: 'XOF'})}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="total">
+                Total de la commande : ${orderDetails.totalPrice.toLocaleString('fr-FR', {style: 'currency', currency: 'XOF'})}
+            </div>
+
+            <div class="address-info">
+                <h3>Adresse de Livraison</h3>
+                <p><strong>Rue :</strong> ${orderDetails.address.street}</p>
+                <p><strong>Ville :</strong> ${orderDetails.address.city}</p>
+                <p><strong>Code postal :</strong> ${orderDetails.address.zip}</p>
+                <p><strong>Téléphone :</strong> ${orderDetails.address.phone}</p>
+                ${orderDetails.address.note_sur_commande ? `
+                <p><strong>Notes :</strong> ${orderDetails.address.note_sur_commande}</p>
+                ` : ''}
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #e3f2fd; border-radius: 8px;">
+                <p><strong>⚠️ Action Requise</strong></p>
+                <p>Veuillez traiter cette commande dans les plus brefs délais.</p>
+                <p>Connectez-vous à votre panel d'administration pour plus de détails.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
 
 const updateOrderStatus = async (req, res, newStatus) => {
   try {
