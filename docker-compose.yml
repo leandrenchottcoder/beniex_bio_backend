@@ -36,8 +36,7 @@ services:
     container_name: beniexbio_nginx
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     volumes:
       # Fichier de configuration Nginx
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
