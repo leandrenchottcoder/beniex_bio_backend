@@ -39,7 +39,7 @@ app.use(
   cors({
     credentials: true,
     optionsSuccessStatus: 200,
-    origin: ["http://localhost:4200", "https://api.beniexbio.com"],
+    origin: ["http://localhost:4200", "https://beniexbio.com", "https://admin.beniexbio.com", "https://manager.beniexbio.com"],
   })
 );
 
@@ -72,7 +72,7 @@ app.use("/api/settings", settingRouter);
 app.use("/api/supports", supportRouter);
 
 const server = app.listen(PORT, () => {
-  console.log(`Listening on http://127.0.0.1:${PORT}`);
+  console.log(`Listening on http://72.61.97.16:${PORT}`);
 });
 
 // 404 handler for unknown routes — use app.use without a path to avoid compiling a route pattern
