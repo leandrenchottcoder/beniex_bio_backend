@@ -4,17 +4,15 @@ FROM node:22
 # Étape 2 : définir le répertoire de travail
 WORKDIR /app
 
-# Étape 3 : copier les fichiers package*
+# Etape 3 : Copier package.json et installer dépendances
 COPY package*.json ./
+RUN npm install -g nodemon && npm install
 
-# Étape 4 : installer les dépendances
-RUN npm install
-
-# Étape 5 : copier le reste du code
+# Étape 4 : copier le reste du code
 COPY . .
 
-# Étape 6 : exposer le port utilisé par Express
+# Étape 5 : exposer le port utilisé par Express
 EXPOSE 3000
 
-# Étape 7 : lancer l’application
+# Étape 6 : lancer l’application
 CMD ["npm", "run", "start"]
