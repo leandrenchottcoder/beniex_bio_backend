@@ -274,7 +274,7 @@ async function sendOrderNotificationEmail(orderDetails) {
   try {
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'leandrenchott7775@gmail.com',
+      to: 'beniexbio@gmail.com',
       subject: `🎉 Nouvelle Commande Reçue - ${orderDetails.orderCode}`,
       html: generateOrderEmailTemplate(orderDetails)
     };
