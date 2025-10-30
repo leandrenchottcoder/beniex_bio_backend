@@ -39,7 +39,7 @@ app.use(
   cors({
     credentials: true,
     optionsSuccessStatus: 200,
-    origin: ["http://localhost:4200", "https://beniexbio.com", "https://admin.beniexbio.com", "https://manager.beniexbio.com", "http://72.61.97.16:3000"],
+    origin: ["http://localhost:4200", "https://beniexbio.com", "https://admin.beniexbio.com", "https://manager.beniexbio.com", "http://72.61.97.16:3000", "https://api.beniexbio.com"],
   })
 );
 
