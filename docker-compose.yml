@@ -33,6 +33,7 @@ services:
 
 volumes:
   mongo_data:
+    name: beniexbio_mongo_data 
 
 networks:
   beniexbio_network:
