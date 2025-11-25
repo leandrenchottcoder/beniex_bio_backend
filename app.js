@@ -59,6 +59,11 @@ process.on("unhandledRejection", (error) => {
   console.log("unhandledRejection", error.message);
 });
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Bienvenu sur Beniexbio" });
+});
+
+
 // Note: express.json / express.urlencoded already configured above with limits.
 app.use("/api/users", authRouter);
 app.use("/api/users", userRouter);
