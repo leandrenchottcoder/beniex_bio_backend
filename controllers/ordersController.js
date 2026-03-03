@@ -92,8 +92,8 @@ export const getOrderById = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
     const startIndex = (page - 1) * limit;
 
     let query = req.user.role === "admin" ? {} : { user: req.user._id };
